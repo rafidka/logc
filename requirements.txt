@@ -1,0 +1,5 @@
+# TODO Relax the versions.
+nltk==3.7
+numpy==1.22.4
+pandas==1.4.2
+scikit-learn==1.1.1
