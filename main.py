@@ -45,7 +45,7 @@ def cluster_logs(logs: list[str]) -> dict[str, list[str]]:
     # Use TF-IDF algorithm to vectorize the input lines.
     vectors = TfidfVectorizer(
         tokenizer=tokenize,
-        stop_words='english'
+        stop_words='english',
     ).fit_transform(logs)
 
     # Use Birch to cluster the vector representations of the input lines.
@@ -63,7 +63,7 @@ def cluster_logs(logs: list[str]) -> dict[str, list[str]]:
 def main():
     # Read input from stdin or files.
     # TODO Avoid reading all input into memory.
-    input_logs = list(fileinput.input())
+    input_logs = list(line.strip() for line in fileinput.input() if line.strip() != '')
 
     clustered_logs = cluster_logs(input_logs)
 

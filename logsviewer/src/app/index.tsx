@@ -18,13 +18,13 @@ class LogsClusterWidget extends MithrilTsxComponent<LogCluster> {
 
     return (
       <div class="logs-cluster">
-        {firstLog}
-
         {
           otherLogs.length > 0 ? <button class="expand-logs-btn" onclick={() => this.showHideOtherLogs()}>
             {this.otherLogsVisible ? 'Hide' : 'Show'} {otherLogs.length} similar {otherLogs.length > 1 ? 'logs' : 'log'}
           </button> : ''
         }
+
+        {firstLog}
 
         {
           (this.otherLogsVisible ? otherLogs : []).map(log => (
