@@ -1,5 +1,6 @@
 # Python imports
 import fileinput
+import json
 
 # nltk imports
 from nltk import word_tokenize
@@ -66,10 +67,11 @@ def main():
 
     clustered_logs = cluster_logs(input_logs)
 
-    for cluster, logs in clustered_logs.items():
-        print(f'[{cluster}]')
-        for log in logs:
-            print(f'  {log.strip()}')
+    print(json.dumps({
+        "logClusters": [{
+            "logs": logs
+        } for _, logs in clustered_logs.items()]
+    }, indent=2))
 
 
 if __name__ == "__main__":
