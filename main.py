@@ -100,7 +100,6 @@ from files.
 
 def main():
     args = parse_args()
-    print(args)
 
     # Read input from stdin or files.
     # TODO Avoid reading all input into memory.
