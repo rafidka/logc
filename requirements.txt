@@ -1,5 +1,7 @@
-# TODO Relax the versions.
+autopep8==1.6.0
 nltk==3.7
 numpy==1.22.4
 pandas==1.4.2
 scikit-learn==1.1.1
+tqdm==4.64.0
+transformers==4.20.0
