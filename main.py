@@ -5,18 +5,23 @@ import json
 
 # 3rd party imports
 from sklearn.cluster import Birch, KMeans
-from sklearn.feature_extraction.text import TfidfVectorizer
-from tqdm import tqdm
 import pandas as pd
 
 # logc imports
 from tokenization import BertTokenizer, NltkTokenizer
+from vectorization import TfidfVectorizer, TfidfPlusWord2VecVectorizer
 
 
 # Define a map of tokenizers to their respective classes.
 tokenizers = {
     'nltk': NltkTokenizer,
     'bert': BertTokenizer
+}
+
+# Define a map of vectorizers to their respective classes.
+vectorizers = {
+    'tfidf': TfidfVectorizer,
+    'tfidf-word2vec': TfidfPlusWord2VecVectorizer
 }
 
 # Define a map of clustering algorithms to their respective classes.
@@ -26,22 +31,22 @@ clusterers = {
 }
 
 
-def cluster_logs(logs: list[str], tokenizer, clusterer) -> dict[str, list[str]]:
+def cluster_logs(logs: list[str], vectorizer, clusterer) -> dict[str, list[str]]:
     """
     Partition the given logs into clusters using the TF-IDF algorithm for
     vectorization along with the Birch algorithm for clustering.
 
     Keyword arguments:
     logs -- The logs to cluster.
+    vectorizer -- The vectorizer to use to convert the logs to vectors.
+    clusterer -- The clusterer to use to cluster the vectors.
 
     Returns:
     A dictionary mapping cluster numbers to lists of logs.
     """
 
-    # Use TF-IDF algorithm to vectorize the input lines.
-    vectors = TfidfVectorizer(
-        tokenizer=tokenizer,
-    ).fit_transform(tqdm(logs, desc='Iterating through logs to generate vector representations.'))
+    # Converts the logs to vectors.
+    vectors = vectorizer(logs)
 
     # Use Birch to cluster the vector representations of the input lines.
     clusters = clusterer.fit_predict(vectors)
@@ -87,6 +92,21 @@ from files.
         default=100,
         help='The number of clusters to divide the log groups into.'
     )
+    # Adds an argument for the vectorizer to use.
+    parser.add_argument(
+        '-v',
+        '--vectorizer',
+        type=str,
+        choices=['tfidf', 'tfidf-word2vec'],
+        default='tfidf',
+        help='''The vectorizer to use. Available options: tfidf, tfidf-word2vec.
+        
+        tfidf: Uses the TF-IDF algorithm to vectorize the input lines.
+        tfidf-word2vec: Uses fasttext to vectorize the tokens of each line, and
+        the TF-IDF as a mechanism for adding different weights to the different tokens
+        making up the lines.
+        '''
+    )
     # Adds an argument for the input files.
     parser.add_argument(
         'files',
@@ -106,14 +126,16 @@ def main():
     input_logs = list(line.strip()
                       for line in fileinput.input(args.files) if line.strip() != '')
 
-    # Creates the tokenizer and clusterer.
+    # Creates the tokenizer, vectorizer, and clusterer.
     tokenizer_cls = tokenizers[args.tokenizer]
     tokenizer = tokenizer_cls()
+    vectorizer_cls = vectorizers[args.vectorizer]
+    vectorizer = vectorizer_cls(tokenizer)
     clusterer_cls = clusterers[args.clusterer]
     clusterer = clusterer_cls(n_clusters=args.num_clusters)
 
     # Cluster the logs.
-    clustered_logs = cluster_logs(input_logs, tokenizer, clusterer)
+    clustered_logs = cluster_logs(input_logs, vectorizer, clusterer)
 
     print(json.dumps({
         "logClusters": [{
