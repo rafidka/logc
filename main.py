@@ -9,7 +9,7 @@ import pandas as pd
 
 # logc imports
 from tokenization import BertTokenizer, NltkTokenizer
-from vectorization import TfidfVectorizer, TfidfPlusWord2VecVectorizer
+from vectorization import SBertVectorizer, TfidfVectorizer, TfidfPlusWord2VecVectorizer
 
 
 # Define a map of tokenizers to their respective classes.
@@ -21,7 +21,8 @@ tokenizers = {
 # Define a map of vectorizers to their respective classes.
 vectorizers = {
     'tfidf': TfidfVectorizer,
-    'tfidf-word2vec': TfidfPlusWord2VecVectorizer
+    'tfidf-word2vec': TfidfPlusWord2VecVectorizer,
+    'sbert': SBertVectorizer,
 }
 
 # Define a map of clustering algorithms to their respective classes.
@@ -97,14 +98,20 @@ from files.
         '-v',
         '--vectorizer',
         type=str,
-        choices=['tfidf', 'tfidf-word2vec'],
+        choices=['tfidf', 'tfidf-word2vec', 'sbert'],
         default='tfidf',
-        help='''The vectorizer to use. Available options: tfidf, tfidf-word2vec.
+        help='''The vectorizer to use. Available options: tfidf, tfidf-word2vec, sbert.
         
-        tfidf: Uses the TF-IDF algorithm to vectorize the input lines.
-        tfidf-word2vec: Uses fasttext to vectorize the tokens of each line, and
-        the TF-IDF as a mechanism for adding different weights to the different tokens
-        making up the lines.
+tfidf: Uses the TF-IDF algorithm to vectorize the input lines.
+
+tfidf-word2vec: Uses fasttext to vectorize the tokens of each line, and the
+  TF-IDF as a mechanism for adding different weights to the different tokens
+  making up the lines.
+
+sbert: Uses the sentence-bert model to vectorize the input lines. More about the
+  models can be found in Reimers et al. 2019 https://arxiv.org/abs/1908.10084
+  Notice that this model doesn't require a tokenizer, and, thus, the tokenizer
+  is ignored when using it.
         '''
     )
     # Adds an argument for the input files.
@@ -132,7 +139,8 @@ def main():
     vectorizer_cls = vectorizers[args.vectorizer]
     vectorizer = vectorizer_cls(tokenizer)
     clusterer_cls = clusterers[args.clusterer]
-    clusterer = clusterer_cls(n_clusters=args.num_clusters)
+    clusterer = clusterer_cls(
+        n_clusters=args.num_clusters if args.num_clusters > 0 else None)
 
     # Cluster the logs.
     clustered_logs = cluster_logs(input_logs, vectorizer, clusterer)

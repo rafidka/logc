@@ -3,6 +3,23 @@ from typing import Iterable
 import numpy as np
 
 
+class SBertVectorizer:
+    """
+    Converts a corpus into vectors using the Sentence BERT model.
+    """
+
+    def __init__(self, tokenizer) -> None:
+        pass
+        from sentence_transformers import SentenceTransformer
+        self.model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
+
+    def __call__(self, corpus: Iterable[str]) -> np.ndarray:
+        """
+        Converts a corpus into vectors using the Sentence BERT model.
+        """
+        return self.model.encode(list(corpus))
+
+
 class TfidfVectorizer:
     """
     Converts a corpus into vectors using the TF-IDF algorithm. The process is
