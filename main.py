@@ -34,8 +34,7 @@ clusterers = {
 
 def cluster_logs(logs: list[str], vectorizer, clusterer) -> dict[str, list[str]]:
     """
-    Partition the given logs into clusters using the TF-IDF algorithm for
-    vectorization along with the Birch algorithm for clustering.
+    Partition the given logs into clusters using the given vectorizer and clusterer.
 
     Keyword arguments:
     logs -- The logs to cluster.
@@ -114,6 +113,27 @@ sbert: Uses the sentence-bert model to vectorize the input lines. More about the
   is ignored when using it.
         '''
     )
+    # Adds an argument for the maximum number of logs to include in each cluster.
+    parser.add_argument(
+        '-m',
+        '--max-logs-per-cluster',
+        type=int,
+        default=10,
+        help='''The maximum number of logs to include in each cluster.
+        
+Usually, logs under the same cluster are similar in nature, so you don't need
+to see all of them. As such, by default only 10 logs per cluster are
+displayed. If you need more than that, you can increase this number. If you
+need to see all of them, set this to 0.
+'''
+    )
+    # Adds an argument for grep-like filtering.
+    parser.add_argument(
+        '-g',
+        '--grep',
+        type=str,
+        help='Specify a pattern if you want to filter clusters.'
+    )
     # Adds an argument for the input files.
     parser.add_argument(
         'files',
@@ -145,12 +165,28 @@ def main():
     # Cluster the logs.
     clustered_logs = cluster_logs(input_logs, vectorizer, clusterer)
 
-    print(json.dumps({
-        "logClusters": [{
-            "logs": logs
-        } for _, logs in clustered_logs.items()]
-    }, indent=2))
+    for _, logs in clustered_logs.items():
+        if not logs:
+            continue
 
+        # Check if any log in the cluster matches the grep pattern.
+        if args.grep:
+            if not any(args.grep in log for log in logs):
+                continue
+            # Since there is a grep, we want to print only logs containing 
+            # the pattern.
+            logs = [log for log in logs if args.grep in log]
+
+        # Print the first log of each cluster unindented.
+        print(logs[0])
+
+        # Print the rest of the logs of each cluster indented.
+        max_logs = min(args.max_logs_per_cluster, len(logs) - 1) if args.max_logs_per_cluster > 0 \
+            else len(logs) - 1
+        for log in logs[1:max_logs]:
+            print(f'    {log}')
+        
+        print('\n\n')
 
 if __name__ == "__main__":
     main()
