@@ -1,7 +1,6 @@
 # Python imports
 import argparse
 import fileinput
-import json
 
 # 3rd party imports
 from sklearn.cluster import Birch, KMeans
