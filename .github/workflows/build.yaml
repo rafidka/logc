@@ -27,7 +27,7 @@ jobs:
       - name: Upload generated executable file
         uses: actions/upload-artifact@master
         with:
-          name: dist/logc-linux
+          name: logc-linux
           path: dist/logc
   create-release-job:
     runs-on: ubuntu-latest
