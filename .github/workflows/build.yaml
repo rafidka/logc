@@ -47,7 +47,7 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: logc-linux
-          path: dist/logc-linux
+          path: dist
       - name: Upload Linux executable to release
         uses: actions/upload-release-asset@v1
         env:
