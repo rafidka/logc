@@ -25,7 +25,7 @@ jobs:
         run: |
           pyinstaller -F -n logc main.py
       - name: Upload generated executable file
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v3
         with:
           name: logc-linux
           path: dist/logc
@@ -44,17 +44,16 @@ jobs:
           draft: false
           prerelease: false
       - name: Download Linux executable
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v3
         with:
           name: logc-linux
-          path: dist/
       - name: Upload Linux executable to release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/logc-linux
+          asset_path: ./logc-linux
           asset_name: logc-linux
           asset_content_type: application/octet-stream
 #
