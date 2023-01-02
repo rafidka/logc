@@ -4,7 +4,7 @@ on:
   push:
 
 jobs:
-  build-linux:
+  build-linux-job:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -27,8 +27,34 @@ jobs:
       - name: Upload generated executable file
         uses: actions/upload-artifact@master
         with:
-          name: logc-linux
+          name: dist/logc-linux
           path: dist/logc
+  create-release-job:
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    - name: Download Linux executable
+      uses: actions/download-artifact@master
+      with:
+        name: logc-linux
+        path: dist/logc-linux
+    - name: Upload Linux executable to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/logc-linux
+        asset_name: logc-linux
+        asset_content_type: application/octet-stream
+#
 #
 #   build-macos:
 #     runs-on: macos-latest
@@ -50,24 +76,3 @@ jobs:
 #       - name: Build executable
 #         run: |
 #           pyinstaller -F -n logc main.py
-#   create-release:
-#     - name: Create release
-#       id: create_release
-#       uses: actions/create-release@v1
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#       with:
-#         tag_name: ${{ github.ref }}
-#         release_name: Release ${{ github.ref }}
-#         draft: false
-#         prerelease: false
-#     - name: Upload executable
-#       uses: actions/upload-release-asset@v1
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#       with:
-#         upload_url: ${{ steps.create_release.outputs.upload_url }}
-#         asset_path: dist/logc
-#         asset_name: logc
-#         asset_content_type: application/octet-stream
-#
