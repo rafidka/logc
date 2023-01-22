@@ -1,3 +1,7 @@
+import re
+import os
+
+
 class BaseTokenizer:
     def __call__(self, string):
         """
@@ -18,6 +22,28 @@ class BaseTokenizer:
     tokenize.__doc__ = __call__.__doc__
 
 
+class SimpleTokenizer(BaseTokenizer):
+    """
+    A simple tokenizer for splitting log lines by whitespaces, symbols, numbers,
+    numbers, and by camel case.
+    """
+
+    def tokenize(self, string: str) -> list[str]:
+        # Split on whitespaces and symbols
+        tokens = re.split(r'[\s,\._-]+', string)
+
+        # Break down camel case tokens
+        new_tokens = []
+        for token in tokens:
+            new_tokens.extend(re.findall(r'[A-Z][a-z]*', token))
+
+        if len(new_tokens) == 0:
+            return tokens
+            # raise ValueError(f'Could not tokenize the string: {string}')
+
+        return new_tokens
+
+
 class NltkTokenizer(BaseTokenizer):
     """
     A tokenizer that uses the NLTK library to tokenize a string.
@@ -32,11 +58,17 @@ class NltkTokenizer(BaseTokenizer):
         """
         Initializes the tokenizer.
         """
-        from nltk import word_tokenize
-        from nltk.stem.porter import PorterStemmer
+        try:
+            from nltk import word_tokenize
+            from nltk.stem.porter import PorterStemmer
 
-        self.nltk_word_tokenize = word_tokenize
-        self.stemmer = PorterStemmer()
+            self.nltk_word_tokenize = word_tokenize
+            self.stemmer = PorterStemmer()
+        except ImportError:
+            raise ImportError(
+                'NLTK is not installed. Please install it by running: '
+                'pip install nltk')
+        
 
     def tokenize(self, string: str) -> list[str]:
         tokens = self.nltk_word_tokenize(string)
@@ -61,9 +93,14 @@ class BertTokenizer(BaseTokenizer):
         """
         Initializes the tokenizer.
         """
-        from transformers import BertTokenizer
-        self.bert_tokenizer = BertTokenizer.from_pretrained(
-            'bert-base-uncased')
+        try:
+            from transformers import BertTokenizer
+            self.bert_tokenizer = BertTokenizer.from_pretrained(
+                'bert-base-uncased')
+        except ImportError:
+            raise ImportError(
+                'Transformers is not installed. Please install it by running: '
+                'pip install transformers')
 
     def tokenize(self, string: str) -> list[str]:
         tokens = self.bert_tokenizer.tokenize(string)

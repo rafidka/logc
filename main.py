@@ -7,12 +7,13 @@ from sklearn.cluster import Birch, KMeans
 import pandas as pd
 
 # logc imports
-from tokenization import BertTokenizer, NltkTokenizer
+from tokenization import BertTokenizer, NltkTokenizer, SimpleTokenizer
 from vectorization import SBertVectorizer, TfidfVectorizer, TfidfPlusWord2VecVectorizer
 
 
 # Define a map of tokenizers to their respective classes.
 tokenizers = {
+    'simple': SimpleTokenizer,
     'nltk': NltkTokenizer,
     'bert': BertTokenizer
 }
@@ -70,9 +71,9 @@ from files.
         '-t',
         '--tokenizer',
         type=str,
-        choices=['nltk', 'bert'],
+        choices=list(tokenizers.keys()),
         default='nltk',
-        help='The tokenizer to use. Available options: nltk, bert.'
+        help=f'The tokenizer to use. Available options: {list(tokenizers.keys())}.'
     )
     # Adds an argument for the clustering algorithm to use.
     parser.add_argument(
