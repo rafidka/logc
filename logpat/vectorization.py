@@ -3,23 +3,6 @@ from typing import Iterable
 import numpy as np
 
 
-class SBertVectorizer:
-    """
-    Converts a corpus into vectors using the Sentence BERT model.
-    """
-
-    def __init__(self, tokenizer) -> None:
-        pass
-        from sentence_transformers import SentenceTransformer
-        self.model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
-
-    def __call__(self, corpus: Iterable[str]) -> np.ndarray:
-        """
-        Converts a corpus into vectors using the Sentence BERT model.
-        """
-        return self.model.encode(list(corpus))
-
-
 class TfidfVectorizer:
     """
     Converts a corpus into vectors using the TF-IDF algorithm. The process is
@@ -28,7 +11,7 @@ class TfidfVectorizer:
     algorithm.
 
     More information about the TF-IDF algorithm can be found in the Wikipedia
-    page: 
+    page:
 
     https://en.wikipedia.org/wiki/Tf%E2%80%93idf
 
@@ -41,8 +24,10 @@ class TfidfVectorizer:
         Keyword arguments:
         tokenizer -- The tokenizer to use.
         """
-        from sklearn.feature_extraction.text import TfidfVectorizer as \
-            SklearnTfidfVectorizer
+        from sklearn.feature_extraction.text import (
+            TfidfVectorizer as SklearnTfidfVectorizer,
+        )
+
         self.tfidf_vectorizer = SklearnTfidfVectorizer(tokenizer=tokenizer)
 
     def __call__(self, corpus: Iterable[str]) -> np.ndarray:
@@ -55,7 +40,7 @@ class TfidfPlusWord2VecVectorizer:
     """
     This is similar to the TfidfVectorizer, but it uses a word2vec model after
     the TF-IDF process to convert the k-dimensional vectors, where k is the
-    number of tokens, into an n-dimesional vector, where n is the embedding size
+    number of tokens, into an n-dimensional vector, where n is the embedding size
     of the word2vec model.
     """
 
@@ -66,21 +51,26 @@ class TfidfPlusWord2VecVectorizer:
         Keyword arguments:
         tokenizer -- The tokenizer to use.
         """
-        from sklearn.feature_extraction.text import TfidfVectorizer as \
-            SklearnTfidfVectorizer
+        from sklearn.feature_extraction.text import (
+            TfidfVectorizer as SklearnTfidfVectorizer,
+        )
+
         self.tfidf_vectorizer = SklearnTfidfVectorizer(tokenizer=tokenizer)
         import fasttext.util
-        fasttext.util.download_model('en', if_exists='ignore')
-        self.fasttext = fasttext.load_model('cc.en.300.bin')
+
+        fasttext.util.download_model("en", if_exists="ignore")
+        self.fasttext = fasttext.load_model("cc.en.300.bin")
 
     def __call__(self, corpus: Iterable[str]) -> np.ndarray:
         # TODO Can we use fit_transform multiple times, or we need to define
         # a new instance every time?
         tfidf_vectors = self.tfidf_vectorizer.fit_transform(corpus)
 
-        feature_vectors = np.array([
-            self.fasttext.get_word_vector(word)
-            for word in self.tfidf_vectorizer.get_feature_names_out()
-        ])
+        feature_vectors = np.array(
+            [
+                self.fasttext.get_word_vector(word)
+                for word in self.tfidf_vectorizer.get_feature_names_out()
+            ]
+        )
 
         return np.matmul(tfidf_vectors.toarray(), feature_vectors)
