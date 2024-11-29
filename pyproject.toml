@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "pypat"
+name = "pat-cli"
 version = "0.1.0"
 description = ""
 authors = ["Rafid Al-Humaimidi <rafidka@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
-pat = "pypat.cli:main"
+pat = "pat_cli.main:main"
 
 [tool.poetry.dependencies]
 python = "^3.12"
