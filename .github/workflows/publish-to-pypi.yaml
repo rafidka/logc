@@ -28,10 +28,8 @@ jobs:
       - name: Build the package
         run: poetry build
 
-      - name: Upload to PyPI
-        run: |
-          pip install twine
-          python -m twine upload dist/*  # Uploads the package to PyPI
+      - name: Publish the package
+        run: poetry publish --repository pypi --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD}
         env:
           PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
           PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
