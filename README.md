@@ -1,8 +1,8 @@
-# pat
+# pypat
 
 ## Overview
 
-`pat` is a tool for clustering logs based on the textual content of the log.
+`pypat` is a tool for clustering logs based on the textual content of the log.
 The tool uses a two-step process to achieve this:
 
 **Vectorization**: In this step, the log statement is converted into a vector in
@@ -31,7 +31,7 @@ to each other.
 First, clone the code locally:
 
 ```
-git clone https://github.com/rafidka/pat.git
+git clone https://github.com/rafidka/pypat.git
 ```
 
 After that, you need to install the Python requirements. It is recommended that
