@@ -33,4 +33,6 @@ jobs:
         env:
           PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
           PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-          PIP_TIMEOUT: 120 # Increase the timeout to avoid timeout errors when calling poetry publish
+          # Increase the timeout to avoid timeout errors when calling poetry publish
+          PIP_TIMEOUT: 120
+          POETRY_REQUESTS_TIMEOUT: 120
