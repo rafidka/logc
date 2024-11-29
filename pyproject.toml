@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "logpat"
+name = "pat"
 version = "0.1.0"
 description = ""
 authors = ["Rafid Al-Humaimidi <rafidka@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
-logpat = "logpat.cli:main"
+pat = "pat.cli:main"
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -16,6 +16,10 @@ pandas = "^2.2.3"
 scikit-learn = "^1.5.2"
 fasttext = "^0.9.3"
 
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.13.2"
+ruff = "^0.8.0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -8,8 +8,8 @@ from tqdm import tqdm
 import pandas as pd
 
 # Local imports
-from logpat.tokenization import NltkTokenizer, SimpleTokenizer
-from logpat.vectorization import TfidfVectorizer, TfidfPlusWord2VecVectorizer
+from pat.tokenization import NltkTokenizer, SimpleTokenizer
+from pat.vectorization import TfidfVectorizer, TfidfPlusWord2VecVectorizer
 
 
 # Define a map of tokenizers to their respective classes.
