@@ -53,15 +53,28 @@ class NltkTokenizer(BaseTokenizer):
     ['Hello', ',', 'world', "!"]
     """
 
+    def _download_nltk_tokenizer(self, name):
+        import nltk
+
+        try:
+            nltk.data.find(f"tokenizers/{name}")
+        except LookupError:
+            print(f"NLTK tokenizer {name} is not available. Downloading...")
+            nltk.download(name)
+
     def __init__(self):
         """
         Initializes the tokenizer.
         """
+        # Ensure the required NLTK data is available
+        self._download_nltk_tokenizer("punkt")
+        self._download_nltk_tokenizer("punkt_tab")
+
         try:
-            from nltk import word_tokenize
+            import nltk
             from nltk.stem.porter import PorterStemmer
 
-            self.nltk_word_tokenize = word_tokenize
+            self.nltk_word_tokenize = nltk.word_tokenize
             self.stemmer = PorterStemmer()
         except ImportError:
             raise ImportError(
