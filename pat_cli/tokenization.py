@@ -23,8 +23,8 @@ class BaseTokenizer:
 
 class SimpleTokenizer(BaseTokenizer):
     """
-    A simple tokenizer for splitting log lines by whitespaces, symbols, numbers,
-    numbers, and by camel case.
+    A simple tokenizer for splitting lines by whitespaces, symbols, numbers, numbers,
+    and by camel case.
     """
 
     def tokenize(self, string: str) -> list[str]:

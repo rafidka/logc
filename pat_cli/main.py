@@ -26,40 +26,40 @@ vectorizers = {
 clusterers = {"kmeans": KMeans, "birch": Birch}
 
 
-def cluster_logs(logs: list[str], vectorizer, clusterer) -> dict[str, list[str]]:
+def cluster_lines(lines: list[str], vectorizer, clusterer) -> dict[str, list[str]]:
     """
-    Partition the given logs into clusters using the given vectorizer and clusterer.
+    Partition the given lines into clusters using the given vectorizer and clusterer.
 
     Keyword arguments:
-    logs -- The logs to cluster.
-    vectorizer -- The vectorizer to use to convert the logs to vectors.
+    lines -- The lines to cluster.
+    vectorizer -- The vectorizer to use to convert the lines to vectors.
     clusterer -- The clusterer to use to cluster the vectors.
 
     Returns:
-    A dictionary mapping cluster numbers to lists of logs.
+    A dictionary mapping cluster numbers to lists of lines.
     """
 
-    # Converts the logs to vectors.
-    vectors = vectorizer(logs)
+    # Converts the lines to vectors.
+    vectors = vectorizer(lines)
 
     # Use Birch to cluster the vector representations of the input lines.
     clusters = clusterer.fit_predict(vectors)
 
     # Create a dataframe with the input lines and their cluster labels, and
     # then sort by cluster.
-    df = pd.DataFrame(zip(logs, clusters), columns=["log", "cluster"])
+    df = pd.DataFrame(zip(lines, clusters), columns=["line", "cluster"])
     df = df.sort_values(by=["cluster"])
 
     # Returns a dictionary of cluster labels and their lines.
-    return df.groupby("cluster")["log"].aggregate(list).to_dict()
+    return df.groupby("cluster")["line"].aggregate(list).to_dict()
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description="""
-Clusters logs based on similarity.
+Clusters lines based on similarity.
 
-The input is a list of logs, one per line. It can be read from stdin or
+The input is a list of lines, one per line. It can be read from stdin or
 from files.
 """
     )
@@ -83,13 +83,13 @@ from files.
         default="kmeans",
         help="The clustering algorithm to use. Available options: kmeans, birch.",
     )
-    # Adds an argument for the number of clusters to divide the log groups into.
+    # Adds an argument for the number of clusters to divide the line groups into.
     parser.add_argument(
         "-n",
         "--num-clusters",
         type=int,
         default=100,
-        help="The number of clusters to divide the log groups into.",
+        help="The number of clusters to divide the line groups into.",
     )
     # Adds an argument for the vectorizer to use.
     parser.add_argument(
@@ -107,16 +107,16 @@ tfidf-word2vec: Uses fasttext to vectorize the tokens of each line, and the
   making up the lines.
 """,
     )
-    # Adds an argument for the maximum number of logs to include in each cluster.
+    # Adds an argument for the maximum number of lines to include in each cluster.
     parser.add_argument(
         "-m",
-        "--max-logs-per-cluster",
+        "--max-lines-per-cluster",
         type=int,
         default=10,
-        help="""The maximum number of logs to include in each cluster.
+        help="""The maximum number of lines to include in each cluster.
         
-Usually, logs under the same cluster are similar in nature, so you don't need
-to see all of them. As such, by default only 10 logs per cluster are
+Usually, lines under the same cluster are similar in nature, so you don't need
+to see all of them. As such, by default only 10 lines per cluster are
 displayed. If you need more than that, you can increase this number. If you
 need to see all of them, set this to 0.
 """,
@@ -130,7 +130,7 @@ need to see all of them, set this to 0.
     )
     # Adds an argument for the input files.
     parser.add_argument(
-        "files", type=str, nargs="*", help="The input files to read logs from."
+        "files", type=str, nargs="*", help="The input files to read lines from."
     )
 
     return parser.parse_args()
@@ -141,7 +141,7 @@ def main():
 
     # Read input from stdin or files.
     # TODO Avoid reading all input into memory.
-    input_logs = list(
+    input_lines = list(
         line.strip()
         for line in tqdm(fileinput.input(args.files), desc="Reading input...")
         if line.strip() != ""
@@ -157,31 +157,31 @@ def main():
         n_clusters=args.num_clusters if args.num_clusters > 0 else None
     )
 
-    # Cluster the logs.
-    clustered_logs = cluster_logs(input_logs, vectorizer, clusterer)
+    # Cluster the lines.
+    clustered_lines = cluster_lines(input_lines, vectorizer, clusterer)
 
-    for _, logs in clustered_logs.items():
-        if not logs:
+    for _, lines in clustered_lines.items():
+        if not lines:
             continue
 
-        # Check if any log in the cluster matches the grep pattern.
+        # Check if any line in the cluster matches the grep pattern.
         if args.grep:
-            if not any(args.grep in log for log in logs):
+            if not any(args.grep in line for line in lines):
                 continue
-            # Since there is a grep, we want to print only logs containing
+            # Since there is a grep, we want to print only lines containing
             # the pattern.
-            logs = [log for log in logs if args.grep in log]
+            lines = [line for line in lines if args.grep in line]
 
-        # Print the first log of each cluster unindented.
-        print(logs[0])
+        # Print the first line of each cluster unindented.
+        print(lines[0])
 
-        # Print the rest of the logs of each cluster indented.
-        max_logs = (
-            min(args.max_logs_per_cluster, len(logs) - 1)
-            if args.max_logs_per_cluster > 0
-            else len(logs) - 1
+        # Print the rest of the lines of each cluster indented.
+        max_lines = (
+            min(args.max_lines_per_cluster, len(lines) - 1)
+            if args.max_lines_per_cluster > 0
+            else len(lines) - 1
         )
-        for log in logs[1:max_logs]:
-            print(f"    {log}")
+        for line in lines[1:max_lines]:
+            print(f"    {line}")
 
         print("\n\n")
