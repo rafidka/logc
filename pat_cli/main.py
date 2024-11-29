@@ -8,6 +8,7 @@ from tqdm import tqdm
 import pandas as pd
 
 # Local imports
+from . import __version__
 from pat_cli.tokenization import NltkTokenizer, SimpleTokenizer
 from pat_cli.vectorization import TfidfVectorizer, TfidfPlusWord2VecVectorizer
 
@@ -63,11 +64,14 @@ from files.
 """
     )
     parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {__version__}"
+    )
+    parser.add_argument(
         "-t",
         "--tokenizer",
         type=str,
         choices=list(tokenizers.keys()),
-        default="nltk",
+        default="simple",
         help=f"The tokenizer to use. Available options: {list(tokenizers.keys())}.",
     )
     # Adds an argument for the clustering algorithm to use.
