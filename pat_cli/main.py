@@ -5,6 +5,7 @@ import fileinput
 # 3rd party imports
 from sklearn.cluster import Birch, KMeans
 from tqdm import tqdm
+from termcolor import colored
 import pandas as pd
 
 # Local imports
@@ -160,9 +161,13 @@ def main():
     # Cluster the lines.
     clustered_lines = cluster_lines(input_lines, vectorizer, clusterer)
 
-    for _, lines in clustered_lines.items():
+    for _, lines in sorted(
+        clustered_lines.items(), key=lambda x: len(x[1]), reverse=True
+    ):
         if not lines:
             continue
+
+        count = len(lines)
 
         # Check if any line in the cluster matches the grep pattern.
         if args.grep:
@@ -173,7 +178,9 @@ def main():
             lines = [line for line in lines if args.grep in line]
 
         # Print the first line of each cluster unindented.
-        print(lines[0])
+        match_count = colored(f"(match count: {count})", "green")
+        header = colored(lines[0], "blue")
+        print(f"{header} {match_count}")
 
         # Print the rest of the lines of each cluster indented.
         max_lines = (
