@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pat-cli"
-version = "0.2.0"
+version = "0.2.1"
 description = ""
 authors = ["Rafid Al-Humaimidi <rafidka@gmail.com>"]
 readme = "README.md"
